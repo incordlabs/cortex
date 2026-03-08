@@ -3,7 +3,7 @@
 
 ---
 
-**Flash is a next generation Tensor Library and Deep Learning Framework that doesn't compromise on
+**Cortex is a next generation Tensor Library and Deep Learning Framework that doesn't compromise on
 <br /> flexibility, efficiency and portability.**
 
 <br/>
@@ -11,14 +11,14 @@
 
 <div align="left">
 
-Flash is both a tensor library and a deep learning framework optimized for numerical computing, model
-inference and model training. Flash leverages Rust to perform optimizations normally only available
+Cortex is both a tensor library and a deep learning framework optimized for numerical computing, model
+inference and model training. Cortex leverages Rust to perform optimizations normally only available
 in static-graph frameworks, offering optimal speed without impacting flexibility.
 
 ## Backend
 
 
-Flash strives to be as fast as possible on as many hardwares as possible, with robust
+Cortex strives to be as fast as possible on as many hardwares as possible, with robust
 implementations. We believe this flexibility is crucial for modern needs where you may train your
 models in the cloud, then deploy on customer hardwares, which vary from user to user.
 
@@ -50,8 +50,8 @@ Most backends support all operating systems, so we don't mention them in the tab
 
 <br />
 
-Compared to other frameworks, Flash has a very different approach to supporting many backends. By
-design, most code is generic over the Backend trait, which allows us to build Flash with swappable
+Compared to other frameworks, Cortex has a very different approach to supporting many backends. By
+design, most code is generic over the Backend trait, which allows us to build Cortex with swappable
 backends. This makes composing backend possible, augmenting them with additional functionalities
 such as autodifferentiation and automatic kernel fusion.
 
@@ -68,8 +68,8 @@ The simple act of wrapping a base backend with Autodiff transparently equips it 
 autodifferentiation support, making it possible to call backward on your model.
 
 ```rust
-use Flash::backend::{Autodiff, Wgpu};
-use Flash::tensor::{Distribution, Tensor};
+use Cortex::backend::{Autodiff, Wgpu};
+use Cortex::tensor::{Distribution, Tensor};
 
 fn main() {
     type Backend = Autodiff<Wgpu>;
@@ -93,7 +93,7 @@ Of note, it is impossible to make the mistake of calling backward on a model tha
 that does not support autodiff (for inference), as this method is only offered by an Autodiff
 backend.
 
-See the [Autodiff Backend README](./crates/Flash-autodiff/README.md) for more details.
+See the [Autodiff Backend README](./crates/Cortex-autodiff/README.md) for more details.
 
 </details>
 
@@ -105,7 +105,7 @@ Fusion: Backend decorator that brings kernel fusion to all first-party backends
 
 This backend decorator enhances a backend with kernel fusion, provided that the inner backend
 supports it. Note that you can compose this backend with other backend decorators such as Autodiff.
-All first-party accelerated backends (like WGPU and CUDA) use Fusion by default (`Flash/fusion`
+All first-party accelerated backends (like WGPU and CUDA) use Fusion by default (`Cortex/fusion`
 feature flag), so you typically don't need to apply it manually.
 
 ```rust
@@ -113,14 +113,14 @@ feature flag), so you typically don't need to apply it manually.
 pub type Cuda<F = f32, I = i32> = CubeBackend<CudaRuntime, F, I, u8>;
 
 #[cfg(feature = "fusion")]
-pub type Cuda<F = f32, I = i32> = Flash_fusion::Fusion<CubeBackend<CudaRuntime, F, I, u8>>;
+pub type Cuda<F = f32, I = i32> = Cortex_fusion::Fusion<CubeBackend<CudaRuntime, F, I, u8>>;
 ```
 
 Of note, we plan to implement automatic gradient checkpointing based on compute bound and memory
 bound operations, which will work gracefully with the fusion backend to make your code run even
 faster during training, see [this issue](https://github.com/qora-protocol/cortex/issues/936).
 
-See the [Fusion Backend README](./crates/Flash-fusion/README.md) for more details.
+See the [Fusion Backend README](./crates/Cortex-fusion/README.md) for more details.
 
 </details>
 
@@ -134,8 +134,8 @@ That backend simplifies hardware operability, if for instance you want to execut
 the CPU and other operations on the GPU.
 
 ```rust
-use Flash::tensor::{Distribution, Tensor};
-use Flash::backend::{
+use Cortex::tensor::{Distribution, Tensor};
+use Cortex::backend::{
     NdArray, Router, Wgpu, ndarray::NdArrayDevice, router::duo::MultiDevice, wgpu::WgpuDevice,
 };
 
@@ -146,9 +146,9 @@ fn main() {
     let device_1 = MultiDevice::B2(NdArrayDevice::Cpu);
 
     let tensor_gpu =
-        Tensor::<Backend, 2>::random([3, 3], Flash::tensor::Distribution::Default, &device_0);
+        Tensor::<Backend, 2>::random([3, 3], Cortex::tensor::Distribution::Default, &device_0);
     let tensor_cpu =
-        Tensor::<Backend, 2>::random([3, 3], Flash::tensor::Distribution::Default, &device_1);
+        Tensor::<Backend, 2>::random([3, 3], Cortex::tensor::Distribution::Default, &device_1);
 }
 
 ```
@@ -168,12 +168,12 @@ of code:
 ```rust
 fn main_server() {
     // Start a server on port 3000.
-    Flash::server::start::<Flash::backend::Cuda>(Default::default(), 3000);
+    Cortex::server::start::<Cortex::backend::Cuda>(Default::default(), 3000);
 }
 
 fn main_client() {
     // Create a client that communicate with the server on port 3000.
-    use Flash::backend::{Autodiff, RemoteBackend};
+    use Cortex::backend::{Autodiff, RemoteBackend};
 
     type Backend = Autodiff<RemoteDevice>;
 
@@ -191,12 +191,12 @@ fn main_client() {
 ## Training & Inference
 
 
-The whole deep learning workflow is made easy with Flash, as you can monitor your training progress
+The whole deep learning workflow is made easy with Cortex, as you can monitor your training progress
 with an ergonomic dashboard, and run inference everywhere from embedded devices to large GPU
 clusters.
 
-Flash was built from the ground up with training and inference in mind. It's also worth noting how
-Flash, in comparison to frameworks like PyTorch, simplifies the transition from training to
+Cortex was built from the ground up with training and inference in mind. It's also worth noting how
+Cortex, in comparison to frameworks like PyTorch, simplifies the transition from training to
 deployment, eliminating the need for code changes.
 
 </div>
@@ -230,8 +230,8 @@ Importing PyTorch or Safetensors Models 🚚
 </summary>
 <br />
 
-You can load weights from PyTorch or Safetensors formats directly into your Flash-defined models.
-This makes it easy to reuse existing models while benefiting from Flash's performance and deployment
+You can load weights from PyTorch or Safetensors formats directly into your Cortex-defined models.
+This makes it easy to reuse existing models while benefiting from Cortex's performance and deployment
 features.
 </details>
 
@@ -255,20 +255,20 @@ Inference in the Browser 🌐
 
 ## Getting Started
 
-Just heard of Flash? You are at the right place! Just continue reading this section and we hope you
+Just heard of Cortex? You are at the right place! Just continue reading this section and we hope you
 can get on board really quickly.
 
 </div>
 
 <details>
 <summary>
-The Flash Book 🔥
+The Cortex Book 🔥
 </summary>
 <br />
 
-To begin working effectively with Flash, it is crucial to understand its key components and
+To begin working effectively with Cortex, it is crucial to understand its key components and
 philosophy. This is why we highly recommend new users to read the first sections of
-The Flash Book 🔥. It provides detailed examples and explanations
+The Cortex Book 🔥. It provides detailed examples and explanations
 covering every facet of the framework, including building blocks like tensors, modules, and
 optimizers, all the way to advanced usage, like coding your own GPU kernels.
 
@@ -288,9 +288,9 @@ Let's start with a code snippet that shows how intuitive the framework is to use
 we declare a neural network module with some parameters along with its forward pass.
 
 ```rust
-use Flash::nn;
-use Flash::module::Module;
-use Flash::tensor::backend::Backend;
+use Cortex::nn;
+use Cortex::module::Module;
+use Cortex::tensor::backend::Backend;
 
 #[derive(Module, Debug)]
 pub struct PositionWiseFeedForward<B: Backend> {
@@ -323,7 +323,7 @@ Pre-trained Models 🤖
 <br />
 
 Don't see the model you want? Don't hesitate to open an issue, and we may prioritize it. Built a
-model using Flash and want to share it? You can also open a Pull Request and add your model under the
+model using Cortex and want to share it? You can also open a Pull Request and add your model under the
 community section!
 
 </details>
@@ -366,7 +366,7 @@ leads to more reliable, bug-free solutions built faster (after some practice �
 
 <!-- >
 > In the event that you are trying to load a model record saved in a previous version, make sure to
-> enable the `record-backward-compat` feature using a previous version of Flash (<=0.16.0). Otherwise,
+> enable the `record-backward-compat` feature using a previous version of Cortex (<=0.16.0). Otherwise,
 > the record won't be deserialized correctly and you will get an error message (which will also point
 > you to the backward compatible feature flag). The backward compatibility was maintained for
 > deserialization (loading), so as soon as you have saved the record again it will be saved according
@@ -406,20 +406,20 @@ in a previous version and save it in any of the other self-describing record for
 **Contributing**
 
 Before contributing, please take a moment to review our
-[code of conduct](https://github.com/blockmandev/Flash/tree/main/CODE-OF-CONDUCT.md). It's also highly
+[code of conduct](https://github.com/blockmandev/Cortex/tree/main/CODE-OF-CONDUCT.md). It's also highly
 recommended to read the
-[architecture overview](https://github.com/blockmandev/Flash/tree/main/contributor-book/src/project-architecture),
+[architecture overview](https://github.com/blockmandev/Cortex/tree/main/contributor-book/src/project-architecture),
 which explains some of our architectural decisions. Refer to our
 [contributing guide](/CONTRIBUTING.md) for more details.
 
 ## Status
 
-Flash is currently in active development, and there will be breaking changes. While any resulting
+Cortex is currently in active development, and there will be breaking changes. While any resulting
 issues are likely to be easy to fix, there are no guarantees at this stage.
 
 ## License
 
-Flash is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
+Cortex is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
 See [LICENSE-APACHE](./LICENSE-APACHE) and [LICENSE-MIT](./LICENSE-MIT) for details. Opening a pull
 request is assumed to signal agreement with these licensing terms.
 
