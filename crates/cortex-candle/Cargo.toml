@@ -1,0 +1,44 @@
+[package]
+authors = ["louisfd <louisfd94@gmail.com>"]
+categories = ["science"]
+description = "[Deprecated] Candle backend for the Cortex framework - use cortex-cubecl, cortex-ndarray, or cortex-tch instead"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "data"]
+license.workspace = true
+name = "cortex-candle"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-candle"
+documentation = "https://docs.rs/cortex-candle"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std"]
+std = []
+doc = ["default"]
+tracing = [
+    "cortex-backend/tracing",
+    "cortex-std/tracing",
+]
+
+cuda = ["candle-core/cuda"]
+metal = ["candle-core/metal"]
+accelerate = ["candle-core/accelerate"]
+
+[dependencies]
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", default-features = false }
+# For rand utils and stub mutex
+cortex-std = { path = "../cortex-std", version = "=0.21.0-pre.1", default-features = false }
+
+candle-core = { workspace = true }
+derive-new = { workspace = true }
+
+[dev-dependencies]
+cortex-tch = { path = "../cortex-tch", version = "=0.21.0-pre.1", default-features = false, features = [
+] }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

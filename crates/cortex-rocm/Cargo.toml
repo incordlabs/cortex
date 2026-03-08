@@ -1,0 +1,42 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science"]
+description = "ROCm HIP backend for the Cortex framework"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "gpu", "rocm", "hip"]
+license.workspace = true
+name = "cortex-rocm"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-rocm"
+documentation = "https://docs.rs/cortex-rocm"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["fusion", "cortex-cubecl/default", "cubecl/default"]
+tracing = [
+    "cubecl/tracing",
+    "cortex-cubecl/tracing",
+    "cortex-backend/tracing",
+    "cortex-fusion?/tracing",
+]
+
+fusion = ["cortex-fusion", "cortex-cubecl/fusion"]
+autotune = ["cortex-cubecl/autotune"]
+autotune-checks = ["cortex-cubecl/autotune-checks"]
+doc = ["cortex-cubecl/doc"]
+std = ["cortex-cubecl/std", "cubecl/std"]
+
+[dependencies]
+cubecl = { workspace = true, features = ["hip"] }
+cortex-cubecl = { path = "../cortex-cubecl", version = "=0.21.0-pre.1", default-features = true }
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", features = [
+    "cubecl-hip",
+] }
+cortex-fusion = { path = "../cortex-fusion", version = "=0.21.0-pre.1", optional = true }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

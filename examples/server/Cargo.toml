@@ -1,0 +1,22 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+edition.workspace = true
+license.workspace = true
+name = "server"
+publish = false
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["webgpu"]
+cuda = ["cortex/cuda"]
+webgpu = ["cortex/webgpu"]
+vulkan = ["cortex/vulkan"]
+ndarray = ["cortex/ndarray"]
+
+[dependencies]
+cfg-if = { workspace = true }
+cortex = { path = "../../crates/cortex", version = "=0.21.0-pre.1", features = ["server"] }
+cubecl = { workspace = true }

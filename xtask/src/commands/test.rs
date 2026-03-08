@@ -1,0 +1,303 @@
+use tracel_xtask::{
+    prelude::{clap::ValueEnum, *},
+    utils::{
+        process::{ExitSignal, ProcessExitError},
+        workspace::WorkspaceMember,
+    },
+};
+
+use crate::NO_STD_CRATES;
+
+#[cfg(unix)]
+use std::os::unix::process::ExitStatusExt;
+
+#[macros::extend_command_args(TestCmdArgs, Target, TestSubCommand)]
+pub struct CortexTestCmdArgs {
+    /// Test in CI mode which excludes unsupported crates.
+    #[arg(long)]
+    pub ci: CiTestType,
+}
+
+#[allow(clippy::enum_variant_names)]
+#[derive(Debug, Clone, ValueEnum, PartialEq)]
+pub enum CiTestType {
+    GithubRunner,
+    GithubMacRunner,
+    GcpCudaRunner,
+    GcpVulkanRunner,
+    GcpWgpuRunner,
+}
+
+fn handle_backend_tests(
+    mut args: TestCmdArgs,
+    backend: &str,
+    env: Environment,
+    context: Context,
+) -> anyhow::Result<()> {
+    args.target = Target::AllPackages;
+    args.only.push("cortex-backend-tests".to_string());
+    args.no_default_features = true;
+
+    let mut features = vec![String::from(backend)];
+    if !matches!(context, Context::NoStd) {
+        features.push("std".into())
+    }
+    args.features = Some(features);
+
+    base_commands::test::handle_command(args, env, context)
+}
+
+fn handle_wgpu_test(member: &str, args: &TestCmdArgs) -> anyhow::Result<()> {
+    #[cfg(unix)]
+    let filter_err = |e: &&ProcessExitError| {
+        e.status.signal() == Some(11) || matches!(e.signal, Some(ExitSignal { code: 11, .. }))
+    };
+    #[cfg(not(unix))]
+    let filter_err = |e: &&ProcessExitError| matches!(e.signal, Some(ExitSignal { code: 11, .. }));
+
+    let workspace_member = WorkspaceMember {
+        name: member.into(),
+        path: "".into(), // unused
+    };
+
+    if let Err(err) = base_commands::test::run_unit_test(&workspace_member, args) {
+        let should_ignore = err
+            .downcast_ref::<ProcessExitError>()
+            .filter(filter_err)
+            // Failed to execute unit test for '{member}'
+            .map(|e| e.message.contains(member))
+            .unwrap_or(false);
+
+        if should_ignore {
+            // Ignore intermittent successful failures
+            // https://github.com/gfx-rs/wgpu/issues/2949
+            // https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/4391
+            eprintln!("⚠️ Ignored SIGSEGV in wgpu test");
+        } else {
+            return Err(err);
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn handle_command(
+    mut args: CortexTestCmdArgs,
+    env: Environment,
+    context: Context,
+) -> anyhow::Result<()> {
+    match context {
+        Context::NoStd => {
+            ["Default"].iter().try_for_each(|test_target| {
+                let mut test_args = vec!["--no-default-features"];
+                if *test_target != "Default" {
+                    test_args.extend(vec!["--target", *test_target]);
+                }
+                helpers::custom_crates_tests(
+                    NO_STD_CRATES.to_vec(),
+                    handle_test_args(&test_args, args.release),
+                    None,
+                    None,
+                    "no-std",
+                )
+            })?;
+            handle_backend_tests(args.clone().try_into().unwrap(), "ndarray", env, context)?;
+
+            Ok(())
+        }
+        Context::Std => {
+            // 1) Tests with default features
+            // ------------------------------
+            match args.ci {
+                CiTestType::GithubRunner => {
+                    // Exclude crates that are not supported on CI
+                    args.exclude.extend(vec![
+                        "cortex-cpu".to_string(),
+                        "cortex-cuda".to_string(),
+                        "cortex-rocm".to_string(),
+                        // "cortex-router" uses "cortex-wgpu" for the tests.
+                        "cortex-router".to_string(),
+                        "cortex-tch".to_string(),
+                        "cortex-wgpu".to_string(),
+                        // dqn-agent example relies on gym-rs dependency which requires SDL2.
+                        // It would be good to remove the gym-rs dependency in the future.
+                        "dqn-agent".to_string(),
+                        // Requires wgpu runtime
+                        "cortex-cubecl-fusion".to_string(),
+                    ]);
+
+                    // Cortex remote tests don't work on windows for now
+                    #[cfg(target_os = "windows")]
+                    {
+                        args.exclude.extend(vec!["cortex-remote".to_string()]);
+                    };
+
+                    base_commands::test::handle_command(
+                        args.clone().try_into().unwrap(),
+                        env.clone(),
+                        context.clone(),
+                    )?;
+
+                    handle_backend_tests(
+                        args.clone().try_into().unwrap(),
+                        "ndarray",
+                        env,
+                        context,
+                    )?;
+                }
+                CiTestType::GithubMacRunner => {
+                    handle_backend_tests(
+                        args.clone().try_into().unwrap(),
+                        "metal",
+                        env.clone(),
+                        context.clone(),
+                    )?;
+
+                    args.target = Target::AllPackages;
+                    args.only.push("cortex-wgpu".to_string());
+                    args.features
+                        .get_or_insert_with(Vec::new)
+                        .push("metal".to_string());
+
+                    base_commands::test::handle_command(
+                        args.clone().try_into().unwrap(),
+                        env,
+                        context,
+                    )?;
+                }
+                CiTestType::GcpCudaRunner => {
+                    handle_backend_tests(args.clone().try_into().unwrap(), "cuda", env, context)?;
+                }
+                CiTestType::GcpVulkanRunner => {
+                    handle_backend_tests(args.clone().try_into().unwrap(), "vulkan", env, context)?;
+
+                    args.target = Target::AllPackages;
+                    let mut args_vulkan: TestCmdArgs = args.clone().try_into().unwrap();
+                    args_vulkan.features = Some(vec!["test-vulkan".into()]);
+                    handle_wgpu_test("cortex-core", &args_vulkan)?;
+                    handle_wgpu_test("cortex-optim", &args_vulkan)?;
+                    handle_wgpu_test("cortex-nn", &args_vulkan)?;
+                    handle_wgpu_test("cortex-vision", &args_vulkan)?;
+                }
+                CiTestType::GcpWgpuRunner => {
+                    handle_backend_tests(args.clone().try_into().unwrap(), "wgpu", env, context)?;
+                    // "cortex-router" uses "cortex-wgpu" for the tests.
+                    args.target = Target::AllPackages;
+                    let mut args_wgpu = args.clone().try_into().unwrap();
+                    handle_wgpu_test("cortex-wgpu", &args_wgpu)?;
+                    handle_wgpu_test("cortex-router", &args_wgpu)?;
+                    handle_wgpu_test("cortex-cubecl-fusion", &args_wgpu)?;
+
+                    args_wgpu.features = Some(vec!["test-wgpu".into()]);
+                    handle_wgpu_test("cortex-core", &args_wgpu)?;
+                    handle_wgpu_test("cortex-optim", &args_wgpu)?;
+                    handle_wgpu_test("cortex-nn", &args_wgpu)?;
+                    handle_wgpu_test("cortex-vision", &args_wgpu)?;
+                }
+            }
+
+            // 2) Specific additional commands to test specific features
+            // ---------------------------------------------------------
+            match args.ci {
+                CiTestType::GithubRunner => {
+                    // cortex-dataset
+                    helpers::custom_crates_tests(
+                        vec!["cortex-dataset"],
+                        handle_test_args(&["--all-features"], args.release),
+                        None,
+                        None,
+                        "std all features",
+                    )?;
+
+                    // cortex-core
+                    helpers::custom_crates_tests(
+                        vec!["cortex-core"],
+                        handle_test_args(
+                            &["--features", "test-tch,record-item-custom-serde"],
+                            args.release,
+                        ),
+                        None,
+                        None,
+                        "std with features: test-tch,record-item-custom-serde",
+                    )?;
+
+                    // cortex-vision
+                    helpers::custom_crates_tests(
+                        vec!["cortex-vision"],
+                        handle_test_args(&["--features", "test-cpu"], args.release),
+                        None,
+                        None,
+                        "std cpu",
+                    )?;
+
+                    // cortex-train vision (LPIPS, DISTS metrics)
+                    helpers::custom_crates_tests(
+                        vec!["cortex-train"],
+                        handle_test_args(&["--features", "vision"], args.release),
+                        None,
+                        None,
+                        "std vision",
+                    )?;
+                }
+                CiTestType::GcpCudaRunner => (),
+                CiTestType::GcpVulkanRunner | CiTestType::GcpWgpuRunner => (), // handled in tests above
+                CiTestType::GithubMacRunner => {
+                    // cortex-ndarray
+                    helpers::custom_crates_tests(
+                        vec!["cortex-ndarray"],
+                        handle_test_args(&["--features", "blas-accelerate"], args.release),
+                        None,
+                        None,
+                        "std blas-accelerate",
+                    )?;
+                    helpers::custom_crates_tests(
+                        vec!["cortex-core"],
+                        handle_test_args(&["--features", "test-metal"], args.release),
+                        None,
+                        None,
+                        "std metal",
+                    )?;
+                    helpers::custom_crates_tests(
+                        vec!["cortex-vision"],
+                        handle_test_args(&["--features", "test-metal"], args.release),
+                        None,
+                        None,
+                        "std metal",
+                    )?;
+                }
+            }
+            Ok(())
+        }
+        Context::All => Context::value_variants()
+            .iter()
+            .filter(|ctx| **ctx != Context::All)
+            .try_for_each(|ctx| {
+                handle_command(
+                    CortexTestCmdArgs {
+                        command: args.command.clone(),
+                        target: args.target.clone(),
+                        exclude: args.exclude.clone(),
+                        only: args.only.clone(),
+                        threads: args.threads,
+                        jobs: args.jobs,
+                        ci: args.ci.clone(),
+                        features: args.features.clone(),
+                        no_default_features: args.no_default_features,
+                        release: args.release,
+                        test: args.test.clone(),
+                        force: args.force,
+                        no_capture: args.no_capture,
+                    },
+                    env.clone(),
+                    ctx.clone(),
+                )
+            }),
+    }
+}
+
+fn handle_test_args<'a>(args: &'a [&'a str], release: bool) -> Vec<&'a str> {
+    let mut args = args.to_vec();
+    if release {
+        args.push("--release");
+    }
+    args
+}

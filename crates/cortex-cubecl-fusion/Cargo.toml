@@ -1,0 +1,52 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science"]
+description = "Provide optimizations that can be used with cubecl based backends."
+documentation = "https://docs.rs/cortex-cubecl-fusion"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "gpu"]
+license.workspace = true
+name = "cortex-cubecl-fusion"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-cubecl-fusion"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["autotune", "std", "cubecl/default", "cortex-fusion/default"]
+
+autotune = []
+autotune-checks = ["cubecl/autotune-checks", "cortex-backend", "half"]
+doc = ["default"]
+std = ["cubecl/std", "cortex-backend?/std", "cortex-fusion/std"]
+tracing = [
+    "cubecl/tracing",
+    "cortex-std/tracing",
+    "cortex-backend/tracing",
+    "cortex-fusion/tracing",
+]
+
+[dependencies]
+cortex-fusion = { path = "../cortex-fusion", version = "=0.21.0-pre.1", default-features = false }
+cortex-ir = { path = "../cortex-ir", version = "=0.21.0-pre.1", default-features = false }
+cortex-std = { path = "../cortex-std", version = "=0.21.0-pre.1", features = [
+    "cubecl",
+] }
+cubecl = { workspace = true }
+cubek = { workspace = true, features = ["matmul", "reduce", "quantization"] }
+half = { workspace = true, optional = true }
+
+# Only for `TensorData` with autotune-checks
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", default-features = false, optional = true }
+
+derive-new = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+cubecl = { workspace = true, features = ["test-runtime"] }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

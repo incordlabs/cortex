@@ -1,0 +1,46 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science", "no-std", "embedded", "wasm"]
+description = "Core backend interfaces and data structures for executing tensor operations in Cortex."
+documentation = "https://docs.rs/cortex-backend"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "tensor", "pytorch", "ndarray"]
+license.workspace = true
+name = "cortex-backend"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-backend"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std"]
+doc = ["default"]
+std = ["rand/std", "num-traits/std", "cortex-std/std", "cubecl?/std"]
+
+tracing = ["cortex-std/tracing", "cubecl/tracing"]
+
+cubecl = ["dep:cubecl", "cortex-std/cubecl"]
+cubecl-cuda = ["cubecl", "cubecl/cuda"]
+cubecl-hip = ["cubecl", "cubecl/hip"]
+cubecl-wgpu = ["cubecl", "cubecl/wgpu"]
+cubecl-cpu = ["cubecl", "cubecl/cpu"]
+
+[dependencies]
+cortex-std = { path = "../cortex-std", version = "=0.21.0-pre.1", default-features = false }
+cubecl = { workspace = true, optional = true, default-features = false }
+
+bytemuck = { workspace = true, features = ["extern_crate_alloc"] }
+derive-new = { workspace = true }
+enumset = { workspace = true }
+hashbrown = { workspace = true }
+num-traits = { workspace = true }
+rand = { workspace = true, default-features = false }
+rand_distr = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+rand = { workspace = true, features = ["thread_rng"] }
+paste = { workspace = true }

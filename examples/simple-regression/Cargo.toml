@@ -1,0 +1,32 @@
+[package]
+authors = ["aasheeshsingh <aasheeshdtu@gmail.com>"]
+edition.workspace = true
+license.workspace = true
+name = "simple-regression"
+publish = false
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["cortex/dataset", "cortex/sqlite-bundled"]
+ndarray = ["cortex/ndarray"]
+ndarray-blas-accelerate = ["cortex/ndarray", "cortex/accelerate"]
+ndarray-blas-netlib = ["cortex/ndarray", "cortex/blas-netlib"]
+ndarray-blas-openblas = ["cortex/ndarray", "cortex/openblas"]
+tch-cpu = ["cortex/tch"]
+tch-gpu = ["cortex/tch"]
+wgpu = ["cortex/wgpu"]
+remote = ["cortex/remote"]
+
+[dependencies]
+cortex = {path = "../../crates/cortex", features=["train"]}
+
+# Serialization
+log = {workspace = true}
+serde = {workspace = true, features = ["std", "derive"]}
+
+# Displaying results
+textplots = "0.8.7"
+rgb = "0.8.52"

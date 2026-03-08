@@ -1,0 +1,38 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science"]
+description = "LibTorch backend for the Cortex framework using the tch bindings."
+documentation = "https://docs.rs/cortex-tch"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "data"]
+license.workspace = true
+name = "cortex-tch"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-tch"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std"]
+std = ["cortex-backend/std"]
+doc = ["tch/doc-only"]
+tracing = [
+    "cortex-backend/tracing",
+]
+
+[dependencies]
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", default-features = false }
+
+libc = { workspace = true }
+log = { workspace = true }
+tch = { workspace = true, features = ["download-libtorch"] }
+torch-sys = { workspace = true }                             # for build script lib dir detection
+
+[build-dependencies]
+cc = "1.2.56"
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

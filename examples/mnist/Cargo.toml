@@ -1,0 +1,38 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+edition.workspace = true
+license.workspace = true
+name = "mnist"
+publish = false
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["cortex/default", "cortex/tui"]
+ndarray = ["cortex/ndarray"]
+ndarray-blas-accelerate = ["ndarray", "cortex/accelerate"]
+ndarray-blas-netlib = ["ndarray", "cortex/blas-netlib"]
+ndarray-blas-openblas = ["ndarray", "cortex/openblas"]
+tch-cpu = ["cortex/tch"]
+tch-gpu = ["cortex/tch"]
+wgpu = ["cortex/wgpu"]
+metal = ["cortex/metal"]
+cuda = ["cortex/cuda"]
+vulkan = ["cortex/vulkan"]
+rocm = ["cortex/rocm"]
+
+[dependencies]
+cortex = { path = "../../crates/cortex", features = [
+    "train",
+    "vision",
+    "metrics",
+    "dispatch",
+    "ndarray",
+], default-features = false }
+
+# Serialization
+log = { workspace = true }
+rand.workspace = true
+serde = { workspace = true, features = ["std", "derive"] }

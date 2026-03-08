@@ -1,0 +1,29 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+edition.workspace = true
+license.workspace = true
+name = "guide"
+publish = false
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["cortex/default", "cortex/tui"]
+# Opt-in for macOS users with the Vulkan SDK installed (enabled by default on other platforms)
+vulkan = ["cortex/vulkan"]
+
+[dependencies]
+cortex = { path = "../../crates/cortex", features = [
+    "webgpu",
+    "train",
+    "vision",
+], default-features = false }
+
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+cortex = { path = "../../crates/cortex", features = ["vulkan"] }
+
+# Serialization
+log = { workspace = true }
+serde = { workspace = true, features = ["std", "derive"] }

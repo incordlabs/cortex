@@ -1,0 +1,44 @@
+[package]
+authors = ["Guilhem Ané (@Cielbird)", "Nathaniel Simard (@nathanielsimard)"]
+description = "Abstractions for network communication for Cortex"
+edition.workspace = true
+license.workspace = true
+name = "cortex-communication"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-communication"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+tracing = [
+    "cortex-std/tracing",
+    "cortex-tensor?/tracing",
+]
+
+data-service = ["cortex-tensor"]
+websocket = ["axum", "tokio-tungstenite", "futures"]
+
+[dependencies]
+cortex-std = { path = "../cortex-std", version = "=0.21.0-pre.1", default-features = true }
+bytes = { workspace = true }
+derive-new = { workspace = true }
+futures-util = { workspace = true }
+log = { workspace = true }
+rmp-serde = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_bytes = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "sync", "signal", "tracing"] }
+tokio-util = { workspace = true }
+tracing = { workspace = true, features = ["default"] }
+tracing-core = { workspace = true, features = ["default"] }
+tracing-subscriber = { workspace = true, features = ["default", "fmt", "env-filter"] }
+
+# Tensor Data Service
+cortex-tensor = { path = "../cortex-tensor", version = "=0.21.0-pre.1", optional = true }
+
+# Websocket
+axum = { workspace = true, features = ["ws"], optional = true }
+tokio-tungstenite = { workspace = true, optional = true }
+futures = { workspace = true, optional = true }

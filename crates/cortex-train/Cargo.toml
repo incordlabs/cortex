@@ -1,0 +1,80 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science"]
+description = "Training crate for the Cortex framework"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "tensor", "pytorch", "ndarray"]
+license.workspace = true
+name = "cortex-train"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-train"
+documentation = "https://docs.rs/cortex-train"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["sys-metrics", "tui", "rl"]
+doc = ["default"]
+vision = ["cortex-nn", "cortex-store/pytorch", "cortex-std/network", "dirs"]
+tracing = [
+    "cortex-core/tracing",
+    "cortex-optim/tracing",
+    "cortex-collective?/tracing",
+]
+
+
+sys-metrics = ["nvml-wrapper", "sysinfo", "systemstat"]
+tui = ["ratatui"]
+rl = ["cortex-rl"]
+# Distributed Data Parallel
+ddp = ["cortex-collective", "cortex-optim/collective"]
+
+[dependencies]
+cortex-core = { path = "../cortex-core", version = "=0.21.0-pre.1", features = [
+    "dataset",
+    "std",
+], default-features = false }
+cortex-optim = { path = "../cortex-optim", version = "=0.21.0-pre.1", features = [
+    "std",
+], default-features = false }
+cortex-rl = { path = "../cortex-rl", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-collective = { path = "../cortex-collective", version = "=0.21.0-pre.1", optional = true }
+cortex-nn = { path = "../cortex-nn", version = "=0.21.0-pre.1", optional = true, default-features = false, features = ["std"] }
+cortex-store = { path = "../cortex-store", version = "=0.21.0-pre.1", optional = true, default-features = false, features = ["std"] }
+cortex-std = { path = "../cortex-std", version = "=0.21.0-pre.1", optional = true, default-features = false, features = ["std"] }
+dirs = { workspace = true, optional = true }
+
+log = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+tracing-core = { workspace = true }
+
+# System Metrics
+nvml-wrapper = { workspace = true, optional = true }
+sysinfo = { workspace = true, optional = true }
+systemstat = { workspace = true, optional = true }
+
+# Text UI
+ratatui = { workspace = true, optional = true, features = [
+    "all-widgets",
+    "crossterm",
+] }
+
+# Utilities
+derive-new = { workspace = true }
+serde = { workspace = true, features = ["std", "derive"] }
+async-channel = { workspace = true }
+cortex-ndarray = { path = "../cortex-ndarray", version = "=0.21.0-pre.1" }
+rstest.workspace = true
+thiserror.workspace = true
+rand.workspace = true
+
+[dev-dependencies]
+cortex-ndarray = { path = "../cortex-ndarray", version = "=0.21.0-pre.1" }
+cortex-autodiff = { path = "../cortex-autodiff", version = "=0.21.0-pre.1" }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

@@ -1,0 +1,48 @@
+[package]
+authors = [
+    "laggui <lagrange.guillaume.1@gmail.com>",
+    "nathanielsimard <nathaniel.simard.42@gmail.com>",
+]
+categories = ["science"]
+description = "Multi-backend router decorator for the Cortex framework"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "data"]
+license.workspace = true
+name = "cortex-router"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-router"
+documentation = "https://docs.rs/cortex-router"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std"]
+std = ["cortex-backend/std", "cortex-std/std", "cortex-ir/std"]
+doc = ["default"]
+tracing = [
+    "cortex-backend/tracing",
+    "cortex-ir/tracing",
+    "cortex-std/tracing",
+]
+
+[dependencies]
+cortex-ir = { path = "../cortex-ir", version = "=0.21.0-pre.1", default-features = false }
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", default-features = false }
+cortex-std = { path = "../cortex-std", version = "=0.21.0-pre.1", default-features = false }
+hashbrown = { workspace = true }
+spin = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]
+cortex-tensor = { path = "../cortex-tensor", version = "=0.21.0-pre.1", default-features = false }
+cortex-ndarray = { path = "../cortex-ndarray", version = "=0.21.0-pre.1" }
+cortex-wgpu = { path = "../cortex-wgpu", version = "=0.21.0-pre.1", default-features = false, features = [
+    "std",
+] }
+
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

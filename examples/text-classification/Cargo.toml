@@ -1,0 +1,52 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+edition.workspace = true
+license.workspace = true
+name = "text-classification"
+publish = false
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = []
+f16 = []
+flex32 = []
+ndarray = ["cortex/ndarray"]
+ndarray-blas-accelerate = ["cortex/ndarray", "cortex/accelerate"]
+ndarray-blas-netlib = ["cortex/ndarray", "cortex/blas-netlib"]
+ndarray-blas-openblas = ["cortex/ndarray", "cortex/openblas"]
+tch-cpu = ["cortex/tch"]
+tch-gpu = ["cortex/tch"]
+wgpu = ["cortex/wgpu"]
+vulkan = ["cortex/vulkan"]
+remote = ["cortex/remote"]
+cuda = ["cortex/cuda"]
+rocm = ["cortex/rocm"]
+metal = ["cortex/metal"]
+ddp = ["cortex/collective"]
+
+[dependencies]
+# Cortex
+cortex = { path = "../../crates/cortex", features = [
+    "train",
+    "tui",
+    "sqlite-bundled",
+    "metrics",
+    "ndarray",
+    "autotune",
+    "fusion",
+    "std",
+], default-features = false }
+log = { workspace = true }
+
+# Tokenizer
+tokenizers = { version = "0.22.2", default-features = false, features = [
+    "onig",
+    "http",
+] }
+
+# Utils
+derive-new = { workspace = true }
+serde = { workspace = true, features = ["std", "derive"] }

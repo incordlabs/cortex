@@ -1,0 +1,31 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science"]
+description = "RL crate for the Cortex framework"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "tensor", "pytorch", "ndarray"]
+license.workspace = true
+name = "cortex-rl"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-rl"
+documentation = "https://docs.rs/cortex-rl"
+version.workspace = true
+
+[dependencies]
+cortex-core = { path = "../cortex-core", version = "=0.21.0-pre.1", features = [
+    "dataset",
+    "std",
+], default-features = false }
+cortex-optim = { path = "../cortex-optim", version = "=0.21.0-pre.1", features = [
+    "std",
+], default-features = false }
+
+derive-new.workspace = true
+log = { workspace = true }
+rand.workspace = true
+
+[dev-dependencies]
+cortex-ndarray = { path = "../cortex-ndarray", version = "=0.21.0-pre.1" }
+
+[lints]
+workspace = true

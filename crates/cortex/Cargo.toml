@@ -1,0 +1,207 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science", "no-std", "embedded", "wasm"]
+description = "Flexible and Comprehensive Deep Learning Framework in Rust"
+documentation = "https://docs.rs/cortex"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "tensor", "pytorch", "ndarray"]
+license.workspace = true
+name = "cortex"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex"
+rust-version = "1.92"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = [
+    "std",
+    "cortex-core/default",
+    "cortex-train?/default",
+    "cortex-collective?/default",
+    # Backends
+    "cortex-candle?/default",
+    "cortex-cpu?/default",
+    "cortex-ndarray?/default",
+    "cortex-tch?/default",
+    "cortex-wgpu?/default",
+    "cortex-router?/default",
+    "cortex-remote?/default",
+    "cortex-cuda?/default",
+    "cortex-autodiff?/default",
+    "cortex-rocm?/default",
+    "cortex-nn/default",
+    "cortex-optim/default",
+    "cortex-dispatch?/default",
+]
+doc = [
+    "default",
+    "train",
+    "cortex-core/doc",
+    "cortex-train/doc",
+    "cortex-collective/doc",
+    "cortex-store?/std",
+    # Backends
+    "cortex-candle/doc",
+    "cortex-cpu?/doc",
+    "cortex-ndarray/doc",
+    "cortex-tch/doc",
+    "cortex-wgpu/doc",
+    "cortex-router/doc",
+    "cortex-cuda/doc",
+    "cortex-autodiff?/std",
+    "cortex-rocm/doc",
+    "cortex-nn/doc",
+    "cortex-optim/doc",
+    "cortex-dispatch?/doc",
+]
+std = [
+    "cortex-core/std",
+    # Backends
+    "cortex-candle?/std",
+    "cortex-cpu?/std",
+    "cortex-ndarray?/std",
+    "cortex-wgpu?/std",
+    "cortex-router?/std",
+    "cortex-cuda?/std",
+    "cortex-autodiff?/std",
+    "cortex-rocm?/std",
+    "cortex-store?/std",
+    "cortex-tch?/std",
+    "cortex-nn/std",
+    "cortex-optim/std",
+    "cortex-dispatch?/std",
+]
+tracing = [
+    "cubecl?/tracing",
+    "cortex-core/tracing",
+    # Backends
+    "cortex-candle?/tracing",
+    "cortex-cpu?/tracing",
+    "cortex-ndarray?/tracing",
+    "cortex-wgpu?/tracing",
+    "cortex-router?/tracing",
+    "cortex-cuda?/tracing",
+    "cortex-autodiff?/tracing",
+    "cortex-rocm?/tracing",
+    "cortex-tch?/tracing",
+    "cortex-store?/tracing",
+    "cortex-nn/tracing",
+    "cortex-optim/tracing",
+    "cortex-dispatch?/tracing",
+]
+
+
+network = ["cortex-core/network"]
+
+# Training with full features
+train = ["cortex-train", "autodiff", "dataset"]
+
+## Includes the Text UI (progress bars, metric plots)
+tui = ["cortex-train?/tui"]
+
+##  Includes system info metrics (CPU/GPU usage, etc)
+metrics = ["cortex-train?/sys-metrics"]
+
+# Datasets
+dataset = ["cortex-core/dataset"]
+
+sqlite = ["cortex-core/sqlite"]
+sqlite-bundled = ["cortex-core/sqlite-bundled"]
+
+# Custom deserializer for Record that is helpful for importing data, such as PyTorch pt files.
+record-item-custom-serde = ["cortex-core/record-item-custom-serde"]
+# Serialization formats
+experimental-named-tensor = ["cortex-core/experimental-named-tensor"]
+
+# Model storage and serialization (SafeTensors, PyTorch interop)
+store = ["cortex-store"]
+
+# CubeCL re-export
+cubecl = ["dep:cubecl"]
+
+audio = ["cortex-core/audio"]
+vision = ["cortex-core/vision"]
+rl = ["dep:cortex-rl", "cortex-train?/rl"]
+
+# Backend
+ir = ["cortex-ir"]
+autodiff = ["cortex-autodiff"]
+fusion = [
+    "ir",
+    "cortex-wgpu?/fusion",
+    "cortex-cuda?/fusion",
+    "cortex-rocm?/fusion",
+    "cortex-cpu?/fusion",
+]
+
+## Backend features
+accelerate = ["cortex-candle?/accelerate", "cortex-ndarray?/blas-accelerate"]
+autotune = [
+    "cortex-wgpu?/autotune",
+    "cortex-cuda?/autotune",
+    "cortex-rocm?/autotune",
+    "cortex-cpu?/autotune",
+]
+autotune-checks = [
+    "cortex-wgpu?/autotune-checks",
+    "cortex-cuda?/autotune-checks",
+    "cortex-rocm?/autotune-checks",
+    "cortex-cpu?/autotune-checks",
+]
+blas-netlib = ["cortex-ndarray?/blas-netlib"]
+openblas = ["cortex-ndarray?/blas-openblas"]
+openblas-system = ["cortex-ndarray?/blas-openblas-system"]
+remote = ["cortex-remote/client", "ir"]
+router = ["cortex-router", "ir"]
+server = ["cortex-remote/server"]
+simd = ["cortex-ndarray?/simd"]
+template = ["cortex-wgpu?/template"]
+collective = ["cortex-collective", "cortex-optim/collective", "cortex-train?/ddp"]
+
+candle = ["cortex-candle"]
+candle-cuda = ["candle", "cortex-candle/cuda"]
+candle-metal = ["cortex-candle?/metal"]
+cuda = ["cortex-cuda", "cortex-dispatch?/cuda"]
+rocm = ["cortex-rocm", "cortex-dispatch?/rocm"]
+ndarray = ["cortex-ndarray", "cortex-dispatch?/ndarray"]
+tch = ["cortex-tch"]
+vulkan = ["wgpu", "cortex-wgpu/vulkan", "cortex-dispatch?/vulkan"]
+webgpu = ["wgpu", "cortex-wgpu/webgpu", "cortex-dispatch?/webgpu"]
+metal = ["wgpu", "cortex-wgpu/metal", "cortex-dispatch?/metal"]
+wgpu = ["cortex-wgpu"]
+cpu = ["cortex-cpu", "cortex-dispatch?/cpu"]
+
+# Backend dispatch
+dispatch = ["cortex-dispatch"]
+
+[dependencies]
+
+# ** Please make sure all dependencies support no_std when std is disabled **
+
+cortex-core = { path = "../cortex-core", version = "=0.21.0-pre.1", default-features = false }
+cortex-train = { path = "../cortex-train", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-collective = { path = "../cortex-collective", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-store = { path = "../cortex-store", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-nn = { path = "../cortex-nn", version = "=0.21.0-pre.1", default-features = false }
+cortex-optim = { path = "../cortex-optim", version = "=0.21.0-pre.1", default-features = false }
+cortex-rl = { path = "../cortex-rl", version = "=0.21.0-pre.1", optional = true, default-features = false }
+
+# Backends
+cortex-autodiff = { path = "../cortex-autodiff", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-candle = { path = "../cortex-candle", version = "=0.21.0-pre.1", optional = true }
+cortex-cuda = { path = "../cortex-cuda", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-cpu = { path = "../cortex-cpu", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-rocm = { path = "../cortex-rocm", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-ndarray = { path = "../cortex-ndarray", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-remote = { path = "../cortex-remote", version = "=0.21.0-pre.1", default-features = false, optional = true }
+cortex-router = { path = "../cortex-router", version = "=0.21.0-pre.1", default-features = false, optional = true }
+cortex-tch = { path = "../cortex-tch", version = "=0.21.0-pre.1", default-features = false, optional = true }
+cortex-wgpu = { path = "../cortex-wgpu", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-ir = { path = "../cortex-ir", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-dispatch = { path = "../cortex-dispatch", version = "=0.21.0-pre.1", optional = true, default-features = false }
+
+cubecl = { workspace = true, default-features = false, optional = true }
+

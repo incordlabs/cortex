@@ -1,0 +1,31 @@
+[package]
+edition.workspace = true
+name = "modern-lstm"
+version = "0.5.0"
+
+[lints]
+workspace = true
+
+[features]
+cuda = ["cortex/cuda"]
+ndarray = ["cortex/ndarray"]
+ndarray-blas-accelerate = ["cortex/ndarray", "cortex/accelerate"]
+ndarray-blas-netlib = ["cortex/ndarray", "cortex/blas-netlib"]
+ndarray-blas-openblas = ["cortex/ndarray", "cortex/openblas"]
+tch-cpu = ["cortex/tch"]
+tch-gpu = ["cortex/tch"]
+wgpu = ["cortex/wgpu"]
+
+[dependencies]
+cortex = { path = "../../crates/cortex", features = ["train"] }
+
+# Random number generator
+rand = { workspace = true, features = ["thread_rng"] }
+rand_distr = { workspace = true }
+
+# Serialization
+serde = { workspace = true, features = ["std", "derive"] }
+
+# Organise the results in dataframe
+planus = { workspace = true }
+polars = { workspace = true }

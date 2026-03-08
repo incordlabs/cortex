@@ -1,0 +1,33 @@
+[package]
+authors = ["laggui <lagrange.guillaume.1@gmail.com>", "nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science"]
+description = "Intermediate representation for the Cortex framework"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "tensor"]
+license.workspace = true
+name = "cortex-ir"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-ir"
+documentation = "https://docs.rs/cortex-ir"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std"]
+std = ["cortex-backend/std"]
+doc = ["default"]
+tracing = [
+    "cortex-backend/tracing",
+]
+
+[dependencies]
+serde = { workspace = true }
+hashbrown = { workspace = true } # no_std compatible
+
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", default-features = false }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

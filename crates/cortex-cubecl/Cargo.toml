@@ -1,0 +1,88 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science"]
+description = "Generic backend that can be compiled just-in-time to any shader language target"
+documentation = "https://docs.rs/cortex-cubecl"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "gpu"]
+license.workspace = true
+name = "cortex-cubecl"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-cubecl"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = [
+    "autotune",
+    "std",
+    "fusion",
+    "cubecl/default",
+    "cortex-fusion?/default",
+    "cortex-cubecl-fusion?/default",
+]
+std = [
+    "cubecl/std",
+    "cortex-backend/std",
+    "cortex-fusion?/std",
+    "cortex-cubecl-fusion?/std",
+]
+doc = ["default"]
+memory-checks = ["cortex-fusion?/memory-checks"]
+tracing = [
+    "dep:tracing",
+    "cubecl/tracing",
+    "cortex-std/tracing",
+    "cortex-backend/tracing",
+    "cortex-fusion?/tracing",
+    "cortex-cubecl-fusion?/tracing",
+]
+
+autotune = ["cortex-cubecl-fusion?/autotune"]
+autotune-checks = [
+    "autotune",
+    "cubecl/autotune-checks",
+    "cortex-cubecl-fusion?/autotune-checks",
+]
+
+fusion = ["cortex-fusion", "cortex-cubecl-fusion"]
+fusion-experimental = ["fusion"]
+
+template = []
+
+[dependencies]
+cortex-cubecl-fusion = { path = "../cortex-cubecl-fusion", version = "=0.21.0-pre.1", default-features = false, optional = true }
+cortex-fusion = { path = "../cortex-fusion", version = "=0.21.0-pre.1", default-features = false, optional = true }
+cortex-ir = { path = "../cortex-ir", version = "=0.21.0-pre.1", default-features = false }
+cortex-std = { path = "../cortex-std", version = "=0.21.0-pre.1", default-features = false, features = [
+    "cubecl",
+] }
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", default-features = false, features = [
+    "cubecl",
+] }
+cubecl = { workspace = true, features = ["stdlib"] }
+cubek = { workspace = true, features = [
+    "attention",
+    "matmul",
+    "convolution",
+    "reduce",
+    "random",
+    "quantization",
+] }
+tracing = { workspace = true, features = ["attributes"], optional = true }
+
+derive-new = { workspace = true }
+log = { workspace = true }
+
+# Async
+futures-lite = { workspace = true, features = ["std"] }
+
+# Template
+serde = { workspace = true }
+text_placeholder = { workspace = true, features = ["struct_context"] }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

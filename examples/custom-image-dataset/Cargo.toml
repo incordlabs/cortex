@@ -1,0 +1,30 @@
+[package]
+authors = ["laggui <lagrange.guillaume.1@gmail.com>"]
+edition.workspace = true
+license.workspace = true
+name = "custom-image-dataset"
+description = "Example implementation for loading a custom image dataset from disk"
+publish = false
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["cortex/std", "cortex/tui"]
+tch-gpu = ["cortex/tch"]
+wgpu = ["cortex/wgpu", "cortex/fusion"]
+metal = ["cortex/metal", "cortex/fusion"]
+
+[dependencies]
+# Disable autotune default for now (convolutions not optimized)
+cortex = { path = "../../crates/cortex", features = [
+    "train",
+    "vision",
+    "network",
+], default-features = false }
+
+
+# File download
+flate2 = { workspace = true }
+tar = "0.4.44"

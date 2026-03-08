@@ -1,0 +1,16 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+edition.workspace = true
+license.workspace = true
+name = "named-tensor"
+publish = false
+version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+cortex = {path = "../../crates/cortex", features = ["experimental-named-tensor", "ndarray"]}
+
+# Serialization
+serde = {workspace = true, features = ["std", "derive"]}

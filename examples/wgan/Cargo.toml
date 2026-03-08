@@ -1,0 +1,21 @@
+[package]
+name = "wgan"
+version = "0.5.0"
+edition.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+ndarray = ["cortex/ndarray"]
+ndarray-blas-accelerate = ["cortex/ndarray", "cortex/accelerate"]
+ndarray-blas-netlib = ["cortex/ndarray", "cortex/blas-netlib"]
+ndarray-blas-openblas = ["cortex/ndarray", "cortex/openblas"]
+tch-cpu = ["cortex/tch"]
+tch-gpu = ["cortex/tch"]
+wgpu = ["cortex/wgpu"]
+cuda = ["cortex/cuda"]
+
+[dependencies]
+cortex = { path = "../../crates/cortex", features=["train", "vision"] }
+image = { workspace = true }

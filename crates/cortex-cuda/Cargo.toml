@@ -1,0 +1,41 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science"]
+description = "CUDA backend for the Cortex framework"
+documentation = "https://docs.rs/cortex-cuda"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "gpu", "cuda"]
+license.workspace = true
+name = "cortex-cuda"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-cuda"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+autotune = ["cortex-cubecl/autotune"]
+autotune-checks = ["cortex-cubecl/autotune-checks"]
+default = ["std", "fusion", "autotune", "cortex-cubecl/default", "cubecl/default"]
+doc = ["cortex-cubecl/doc"]
+fusion = ["cortex-fusion", "cortex-cubecl/fusion"]
+std = ["cortex-cubecl/std", "cubecl/std"]
+tracing = [
+    "cortex-backend/tracing",
+    "cortex-cubecl/tracing",
+    "cortex-fusion?/tracing",
+    "cubecl/tracing",
+]
+
+[dependencies]
+cortex-fusion = { path = "../cortex-fusion", version = "=0.21.0-pre.1", optional = true }
+cortex-cubecl = { path = "../cortex-cubecl", version = "=0.21.0-pre.1", default-features = false }
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", default-features = false, features = [
+    "cubecl-cuda",
+] }
+cubecl = { workspace = true, features = ["cuda"] }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

@@ -1,0 +1,413 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      dry-run-only:
+        description: "Run xtask publish in dry-run mode (no publish)"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  publish-cortex-rl:
+    needs:
+      - publish-cortex-core
+      - publish-cortex-optim
+      # dev dependencies
+      - publish-cortex-ndarray
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-rl
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-vision:
+    needs:
+      - publish-cortex-autodiff
+      - publish-cortex-candle
+      - publish-cortex-fusion
+      - publish-cortex-cubecl-fusion
+      - publish-cortex-cubecl
+      - publish-cortex-ndarray
+      - publish-cortex-tch
+      - publish-cortex-tensor
+      - publish-cortex-ir
+      - publish-cortex-tensor-testgen
+      # dev dependencies
+      - publish-cortex-wgpu
+      - publish-cortex-cuda
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-vision
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-router:
+    needs:
+      - publish-cortex-ir
+      - publish-cortex-std
+      - publish-cortex-tensor
+      # dev dependencies
+      - publish-cortex-autodiff
+      - publish-cortex-ndarray
+      - publish-cortex-wgpu
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-router
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-remote:
+    needs:
+      - publish-cortex-ir
+      - publish-cortex-std
+      - publish-cortex-tensor
+      - publish-cortex-router
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-remote
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-derive:
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-derive
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-dataset:
+    needs:
+      - publish-cortex-std
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-dataset
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-std:
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-std
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-tensor-testgen:
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-tensor-testgen
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-tensor:
+    needs:
+      - publish-cortex-tensor-testgen
+      - publish-cortex-std
+      - publish-cortex-backend
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-tensor
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-backend:
+    needs:
+      - publish-cortex-std
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-backend
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-ir:
+    needs:
+      - publish-cortex-tensor
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-ir
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-fusion:
+    needs:
+      - publish-cortex-ir
+      - publish-cortex-tensor
+      - publish-cortex-std
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-fusion
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-cubecl-fusion:
+    needs:
+      - publish-cortex-ir
+      - publish-cortex-std
+      - publish-cortex-fusion
+      - publish-cortex-tensor
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-cubecl-fusion
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-cubecl:
+    needs:
+      - publish-cortex-ir
+      - publish-cortex-std
+      - publish-cortex-fusion
+      - publish-cortex-cubecl-fusion
+      - publish-cortex-tensor
+      - publish-cortex-ndarray
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-cubecl
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-autodiff:
+    needs:
+      - publish-cortex-tensor
+      - publish-cortex-tensor-testgen
+      - publish-cortex-std
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-autodiff
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-tch:
+    needs:
+      - publish-cortex-tensor
+      - publish-cortex-autodiff
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-tch
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-ndarray:
+    needs:
+      - publish-cortex-ir
+      - publish-cortex-tensor
+      - publish-cortex-autodiff
+      - publish-cortex-std
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-ndarray
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-wgpu:
+    needs:
+      - publish-cortex-tensor
+      - publish-cortex-autodiff
+      - publish-cortex-ndarray
+      - publish-cortex-std
+      - publish-cortex-cubecl
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-wgpu
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-cpu:
+    needs:
+      - publish-cortex-tensor
+      - publish-cortex-fusion
+      - publish-cortex-cubecl
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-cpu
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-cuda:
+    needs:
+      - publish-cortex-tensor
+      - publish-cortex-autodiff
+      - publish-cortex-ndarray
+      - publish-cortex-std
+      - publish-cortex-cubecl
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-cuda
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-rocm:
+    needs:
+      - publish-cortex-tensor
+      - publish-cortex-autodiff
+      - publish-cortex-ndarray
+      - publish-cortex-std
+      - publish-cortex-cubecl
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-rocm
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-candle:
+    needs:
+      - publish-cortex-tensor
+      - publish-cortex-autodiff
+      - publish-cortex-tch
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-candle
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-collective:
+    needs:
+      - publish-cortex-std
+      - publish-cortex-tensor
+      - publish-cortex-communication
+      # dev dependencies
+      - publish-cortex-wgpu
+      - publish-cortex-ndarray
+      - publish-cortex-cuda
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-collective
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-communication:
+    needs:
+      - publish-cortex-std
+      - publish-cortex-tensor
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-communication
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-core:
+    needs:
+      - publish-cortex-dataset
+      - publish-cortex-std
+      - publish-cortex-derive
+      - publish-cortex-tensor
+      - publish-cortex-vision
+      # dev dependencies
+      - publish-cortex-autodiff
+      - publish-cortex-wgpu
+      - publish-cortex-tch
+      - publish-cortex-cuda
+      - publish-cortex-ndarray
+      - publish-cortex-candle
+      - publish-cortex-remote
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-core
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-nn:
+    needs:
+      - publish-cortex-core
+      # dev dependencies
+      - publish-cortex-autodiff
+      - publish-cortex-wgpu
+      - publish-cortex-tch
+      - publish-cortex-ndarray
+      - publish-cortex-candle
+      - publish-cortex-remote
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-nn
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-optim:
+    needs:
+      - publish-cortex-core
+      - publish-cortex-collective
+      # dev dependencies
+      - publish-cortex-autodiff
+      - publish-cortex-wgpu
+      - publish-cortex-tch
+      - publish-cortex-ndarray
+      - publish-cortex-candle
+      - publish-cortex-remote
+      - publish-cortex-nn
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-optim
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-train:
+    needs:
+      - publish-cortex-core
+      - publish-cortex-optim
+      - publish-cortex-collective
+      - publish-cortex-rl
+      - publish-cortex-ndarray
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-train
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex:
+    needs:
+      - publish-cortex-core
+      - publish-cortex-nn
+      - publish-cortex-optim
+      - publish-cortex-collective
+      - publish-cortex-store
+      - publish-cortex-train
+      - publish-cortex-cpu
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
+
+  publish-cortex-store:
+    needs:
+      - publish-cortex-core
+      - publish-cortex-nn
+      - publish-cortex-tensor
+    uses: qora-protocol/github-actions/.github/workflows/publish-crate.yml@v9
+    with:
+      crate: cortex-store
+      dry-run-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run-only || false }}
+    secrets:
+      CRATES_IO_API_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}

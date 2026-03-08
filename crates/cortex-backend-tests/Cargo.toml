@@ -1,0 +1,120 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science", "no-std", "embedded", "wasm"]
+description = "Tensor tests for Cortex backends"
+documentation = "https://docs.rs/cortex-backend-tests"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "tensor", "pytorch", "ndarray"]
+license.workspace = true
+name = "cortex-backend-tests"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-backend-tests"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = [
+    "cortex-tensor/default",
+    "cortex-autodiff/default",
+    # Backends (default not enabled for CubeCL backends as it activates fusion)
+    "cortex-cpu?/default",
+    "cortex-ndarray?/default",
+    "cortex-tch?/default",
+    # Default
+    "ndarray",
+    "std",
+]
+std = [
+    "cortex-tensor/std",
+    "cortex-autodiff/std",
+    # Backends
+    "cortex-cpu?/std",
+    "cortex-ndarray?/std",
+    "cortex-wgpu?/std",
+    "cortex-router?/std",
+    "cortex-cuda?/std",
+    "cortex-rocm?/std",
+]
+
+tracing = [
+    "cubecl?/tracing",
+    "cortex-tensor/tracing",
+    "cortex-autodiff/tracing",
+    # Backends
+    "cortex-cpu?/tracing",
+    "cortex-ndarray?/tracing",
+    "cortex-wgpu?/tracing",
+    "cortex-router?/tracing",
+    "cortex-cuda?/tracing",
+    "cortex-rocm?/tracing",
+]
+
+# Backends
+cuda = ["cortex-cuda", "quantization", "cube"]
+rocm = ["cortex-rocm", "quantization", "cube"]
+ndarray = ["cortex-ndarray", "quantization"]
+tch = ["cortex-tch"]
+vulkan = ["wgpu", "cortex-wgpu/vulkan"]
+webgpu = ["wgpu", "cortex-wgpu/webgpu"]
+metal = ["wgpu", "cortex-wgpu/metal"]
+wgpu = ["cortex-wgpu", "quantization", "cube"]
+cpu = ["cortex-cpu", "cube"]
+router = ["cortex-router", "ndarray", "cortex-wgpu"]
+
+autotune = [
+    "cortex-wgpu?/autotune",
+    "cortex-cuda?/autotune",
+    "cortex-rocm?/autotune",
+    "cortex-cpu?/autotune",
+]
+autotune-checks = [
+    "cortex-wgpu?/autotune-checks",
+    "cortex-cuda?/autotune-checks",
+    "cortex-rocm?/autotune-checks",
+    "cortex-cpu?/autotune-checks",
+]
+
+# CubeCL backends
+cube = [
+    "cubecl",
+    "cubek",
+    "autotune",
+    "cortex-fusion",
+    "cortex-cubecl",
+    "cortex-ndarray",
+]
+
+# Test configs
+quantization = []
+
+[dependencies]
+cortex-tensor = { path = "../cortex-tensor", version = "=0.21.0-pre.1", default-features = false }
+cortex-tensor-testgen = { path = "../cortex-tensor-testgen", version = "=0.21.0-pre.1" }
+
+# Backends
+cortex-autodiff = { path = "../cortex-autodiff", version = "=0.21.0-pre.1", default-features = false, features = [
+    "export_tests",
+] }
+cortex-cuda = { path = "../cortex-cuda", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-cpu = { path = "../cortex-cpu", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-rocm = { path = "../cortex-rocm", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-ndarray = { path = "../cortex-ndarray", version = "=0.21.0-pre.1", optional = true, default-features = false, features = [
+    "export_tests",
+] }
+cortex-router = { path = "../cortex-router", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-tch = { path = "../cortex-tch", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-wgpu = { path = "../cortex-wgpu", version = "=0.21.0-pre.1", optional = true, default-features = false }
+
+# To wrap `Fusion<CubeBackend>
+cortex-fusion = { path = "../cortex-fusion", version = "=0.21.0-pre.1", optional = true }
+cortex-cubecl = { path = "../cortex-cubecl", version = "=0.21.0-pre.1", optional = true, features = [
+    "fusion",
+] }
+
+num-traits = { workspace = true }
+serial_test = { workspace = true }
+
+cubecl = { workspace = true, optional = true }
+cubek = { workspace = true, features = ["random"], optional = true }

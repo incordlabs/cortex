@@ -1,0 +1,42 @@
+[package]
+authors = ["marcantoinem <marc-antoine.m@outlook.com>"]
+categories = ["science"]
+description = "MLIR based CPU backend for the Cortex framework"
+documentation = "https://docs.rs/cortex-cpu"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "cpu"]
+license.workspace = true
+name = "cortex-cpu"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-cpu"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = ["std", "fusion", "autotune", "cortex-cubecl/default", "cubecl/default"]
+doc = ["cortex-cubecl/doc"]
+fusion = ["cortex-fusion", "cortex-cubecl/fusion"]
+std = ["cortex-cubecl/std", "cubecl/std"]
+tracing = [
+    "cortex-backend/tracing",
+    "cortex-cubecl/tracing",
+    "cortex-fusion?/tracing",
+    "cubecl/tracing",
+]
+
+autotune = ["cortex-cubecl/autotune"]
+autotune-checks = ["cortex-cubecl/autotune-checks"]
+
+[dependencies]
+cortex-fusion = { path = "../cortex-fusion", version = "=0.21.0-pre.1", optional = true }
+cortex-cubecl = { path = "../cortex-cubecl", version = "=0.21.0-pre.1", default-features = false }
+cortex-backend = { path = "../cortex-backend", version = "=0.21.0-pre.1", features = [
+    "cubecl-cpu",
+] }
+cubecl = { workspace = true, features = ["cpu"] }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]

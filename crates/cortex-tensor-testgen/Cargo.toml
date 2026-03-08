@@ -1,0 +1,20 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+description = "Test generation crate for cortex-tensor"
+edition.workspace = true
+license.workspace = true
+name = "cortex-tensor-testgen"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-tensor-testgen"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }

@@ -1,0 +1,151 @@
+[package]
+authors = ["nathanielsimard <nathaniel.simard.42@gmail.com>"]
+categories = ["science", "no-std", "embedded", "wasm"]
+description = "Flexible and Comprehensive Deep Learning Framework in Rust"
+documentation = "https://docs.rs/cortex-core"
+edition.workspace = true
+keywords = ["deep-learning", "machine-learning", "tensor", "pytorch", "ndarray"]
+license.workspace = true
+name = "cortex-core"
+readme.workspace = true
+repository = "https://github.com/qora-protocol/cortex/tree/main/crates/cortex-core"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = [
+    "std",
+    "cortex-std/default",
+    "cortex-dataset?/default",
+    "cortex-tensor/default",
+]
+doc = [
+    "std",
+    "dataset",
+    "audio",
+    # Doc features
+    "cortex-std/doc",
+    "cortex-dataset/doc",
+    "cortex-tensor/doc",
+]
+tracing = [
+    "cortex-std/tracing",
+    "cortex-tensor/tracing",
+    "cortex-dataset?/tracing",
+    "cortex-vision?/tracing",
+]
+
+
+dataset = ["cortex-dataset"]
+
+network = ["cortex-std/network"]
+sqlite = ["cortex-dataset?/sqlite"]
+sqlite-bundled = ["cortex-dataset?/sqlite-bundled"]
+std = [
+    "bincode/std",
+    "cortex-std/std",
+    "cortex-tensor/std",
+    "flate2",
+    "half/std",
+    "log",
+    "rand/std",
+    "rmp-serde",
+    "serde/std",
+    "serde_json/std",
+    "num-traits/std",
+]
+vision = ["cortex-vision", "cortex-dataset?/vision"]
+audio = ["cortex-dataset?/audio"]
+
+# Custom deserializer for Record that is helpful for importing data, such as PyTorch pt files.
+record-item-custom-serde = ["thiserror"]
+
+# Serialization formats
+experimental-named-tensor = ["cortex-tensor/experimental-named-tensor"]
+
+test-cuda = [
+    "cortex-cuda/default",
+] # To use cuda during testing, default uses ndarray.
+test-rocm = [
+    "cortex-rocm/default",
+] # To use hip during testing, default uses ndarray.
+test-tch = [
+    "cortex-tch/default",
+] # To use tch during testing, default uses ndarray.
+test-wgpu = [
+    "cortex-wgpu/default",
+] # To use wgpu during testing, default uses ndarray.
+test-vulkan = [
+    "test-wgpu",
+    "cortex-wgpu/vulkan",
+] # To use wgpu-spirv during testing, default uses ndarray.
+test-metal = [
+    "test-wgpu",
+    "cortex-wgpu/metal",
+] # To use wgpu-spirv during testing, default uses ndarray.
+
+# Memory checks are disabled by default
+test-memory-checks = ["cortex-fusion/memory-checks"]
+
+[dependencies]
+
+# ** Please make sure all dependencies support no_std when std is disabled **
+
+cortex-std = { path = "../cortex-std", version = "=0.21.0-pre.1", default-features = false }
+cortex-dataset = { path = "../cortex-dataset", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-derive = { path = "../cortex-derive", version = "=0.21.0-pre.1" }
+cortex-tensor = { path = "../cortex-tensor", version = "=0.21.0-pre.1", default-features = false }
+cortex-vision = { path = "../cortex-vision", version = "=0.21.0-pre.1", optional = true, default-features = false }
+
+data-encoding = { workspace = true }
+uuid = { workspace = true }
+
+derive-new = { workspace = true }
+log = { workspace = true, optional = true }
+rand = { workspace = true }
+
+# The same implementation of HashMap in std but with no_std support (only alloc crate is needed)
+hashbrown = { workspace = true, features = ["serde"] } # no_std compatible
+
+# Serialize Deserialize
+flate2 = { workspace = true, optional = true }
+serde = { workspace = true, features = ["derive"] }
+
+ahash = { workspace = true }
+bincode = { workspace = true }
+half = { workspace = true }
+num-traits = { workspace = true }
+rmp-serde = { workspace = true, optional = true }
+serde_json = { workspace = true, features = ["alloc"] } #Default enables std
+spin = { workspace = true }                             # Using in place of use std::sync::Mutex when std is disabled
+thiserror = { workspace = true, optional = true }
+
+[target.'cfg(target_has_atomic = "ptr")'.dependencies]
+regex = { workspace = true }
+
+# FOR TESTING
+cortex-cuda = { path = "../cortex-cuda", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-rocm = { path = "../cortex-rocm", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-remote = { path = "../cortex-remote", version = "=0.21.0-pre.1", default-features = false, optional = true }
+cortex-router = { path = "../cortex-router", version = "=0.21.0-pre.1", default-features = false, optional = true }
+cortex-tch = { path = "../cortex-tch", version = "=0.21.0-pre.1", optional = true }
+cortex-wgpu = { path = "../cortex-wgpu", version = "=0.21.0-pre.1", optional = true, default-features = false }
+cortex-fusion = { path = "../cortex-fusion", version = "=0.21.0-pre.1", optional = true }
+
+[target.'cfg(not(target_has_atomic = "ptr"))'.dependencies]
+portable-atomic-util = { workspace = true }
+portable-atomic = { workspace = true }
+
+[dev-dependencies]
+cortex-ndarray = { path = "../cortex-ndarray", version = "=0.21.0-pre.1" }
+cortex-autodiff = { path = "../cortex-autodiff", version = "=0.21.0-pre.1" }
+cortex-dataset = { path = "../cortex-dataset", version = "=0.21.0-pre.1", features = [
+    "fake",
+] }
+rstest = { workspace = true }
+
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "docsrs"]
