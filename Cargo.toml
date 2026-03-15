@@ -194,7 +194,7 @@ cubek = { git = "https://github.com/qora-protocol/cubek", default-features = fal
 # cubek = { version = "=0.2.0-pre.1", default-features = false }
 
 ### For xtask crate ###
-tracel-xtask = "=4.13.3"
+tracel-xtask = "=4.13.5"
 # ### For local development. ###
 # tracel-xtask = { path = "../xtask/crates/tracel-xtask", default-features = false }
 
